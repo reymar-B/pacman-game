@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pacman</title>
+</head>
+<body>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+        }
+        #brick {
+            display: inline-block;
+            height: 25px;
+            width: 25px;
+            background-color: rgb(2, 114, 148);
+        }
+        #coin {
+            display: inline-block;
+            height: 25px;
+            width: 25px;
+        }
+        #cherry {
+            display: inline-block;
+            height: 25px;
+            width: 25px;
+        }
+        .coin-img {
+            height: 8px;
+            width: 8px;
+            margin-top: 30%;
+            margin-left: 30%;
+            background-image: url("img/coin.gif");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        .cherry-img {
+            height: 17px;
+            width: 17px;
+            margin-top: 10%;
+            margin-left: 20%;
+            background-image: url("img/pac-cherry.png");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        #empty {
+            display: inline-block;
+            height: 25px;
+            width: 25px;
+        }
+        #pacman {
+            height: 20px;
+            width: 20px;
+            background-image: url("img/pacman.gif");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: absolute;
+            top: 25px;
+            left: 25px;
+        }
+        .ghost-img{
+            height: 20px;
+            width: 20px;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        #ghost01{
+            background-image: url("img/ghost01.gif");
+            position: absolute;
+        }
+        #ghost02{
+            background-image: url("img/ghost02.gif");
+            position: absolute;
+        }
+        #ghost03{
+            background-image: url("img/ghost01.gif");
+            position: absolute;
+        }
+        #ghost04{
+            background-image: url("img/ghost02.gif");
+            position: absolute;
+        }
+        #row {
+            margin-bottom: -5px;
+        }
+        #container {
+            margin-top: 10%;
+            margin-left: 30%;
+            position: relative;
+        }
+        #score {
+            position: absolute;
+            top: -50px;
+            left: 330px;
+            font-size: 30px;
+            background-color: white;
+            padding: 5px 15px 5px 15px;
+        }
+
+    </style>
+    <div id="container">
+        <div id="pacman"></div>
+        <div id="world"></div>
+        <div id="score">0</div>
+        <div id="ghost01" class="ghost-img"></div>
+        <div id="ghost02" class="ghost-img"></div>
+        <div id="ghost03" class="ghost-img"></div>
+        <div id="ghost04" class="ghost-img"></div>
+    </div>
+
+    <script>
+
+        var world01 = [
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 1, 1, 1, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 1, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2],
+            [2, 1, 2, 1, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2],
+            [2, 1, 2, 1, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2],
+            [2, 1, 2, 1, 1, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+        ];
+        var world02 = [
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+        ];
+        var world03 = [
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+        ];
+        var world04 = [
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+        ];
+        var world05 = [
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 1, 1, 2],
+            [2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 1, 1, 2],
+            [2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+        ];
+
+        var map = [ world01, world02, world03, world04, world05];
+
+        map = map[randomNumber( 4 )];
+
+        var pacman = {
+            x: 1,
+            y: 1
+        };
+        var score = 0;
+        var ghost01 = {
+            x: 1,
+            y: 1
+        };
+        var ghost02 = {
+            x: 1,
+            y: 1
+        };
+        var ghost03 = {
+            x: 1,
+            y: 1
+        };
+        var ghost04 = {
+            x: 1,
+            y: 1
+        };
+
+        document.onkeydown = function( e ) {//KEYS EVENTS
+            
+            movePacman( e, pacman );
+            displayPacman();
+            displayWorld();
+            coinRemove( pacman );
+            clash();
+        };
+
+        addCherry();
+        displayWorld();
+        displayGhost();
+        coinRemove( pacman );
+        move();
+
+        function displayWorld() {//DISPLAY THE MAP
+
+            var output = '';
+
+            for ( var i = 0; i < map.length; i++ ) {
+
+                output += "<div id='row'>";
+
+                    for ( var j = 0; j < map[i].length; j++ ) {
+
+                        if ( map[i][j] == 2 ) {
+
+                            output += "<div id='brick' class='wall'></div>";
+
+                        } else if ( map[i][j] == 1 ) {
+
+                            output += "<div id='coin'><div class='coins coin-img'></div></div>";
+                        
+                        } else if ( map[i][j] == 0 ) {
+
+                            output += "<div id='empty'></div>";
+                        
+                        } else if ( map[i][j] == -1 ) {
+
+                            output += "<div id='cherry'><div class='coins cherry-img'></div></div>";
+
+                        }
+                    }
+
+                output += "</div>";
+            }
+
+            document.getElementById( 'world' ).innerHTML = output;
+            
+        }
+        
+        function displayPacman() {
+
+            document.getElementById( 'pacman' ).style.left = pacman.x * 25+"px";
+
+            document.getElementById( 'pacman' ).style.top = pacman.y * 25+"px";
+
+            document.getElementById( 'score' ).innerHTML = score * 5;
+
+        }
+
+        function movePacman( e, pacman ) {
+
+            if ( e.keyCode == 37 && map[pacman.y][pacman.x - 1] <= 1 ) { //LEFT
+
+                return pacman.x--;
+
+            } else if ( e.keyCode == 39 && map[pacman.y][pacman.x + 1] <= 1 ) { //RIGHT
+
+                return pacman.x++;
+
+            } else if ( e.keyCode == 38 && map[pacman.y - 1][pacman.x] <= 1 ) { //UP
+
+                return pacman.y--;
+
+            } else if ( e.keyCode == 40 && map[pacman.y + 1][pacman.x] <= 1 ) { //DOWN
+
+                return pacman.y++;
+
+            };
+            
+        }
+
+        function coinRemove( pacman ) {//REMOVE COIN AND INCREMENT SCORE
+
+            if ( map[pacman.y][pacman.x] == 1 ) {
+
+                score++;
+
+                return map[pacman.y][pacman.x] = 0;
+            
+            } else if ( map[pacman.y][pacman.x] == -1 ) {
+
+                score+=4;
+
+                return map[pacman.y][pacman.x] = 0;
+                
+            }
+
+        }
+
+        function randomNumber( range ) {//GENERATES A RANDOM NUMBER
+
+            return Math.floor((Math.random() * range) + 1);
+        
+        }
+
+        function addCherry() {
+
+            var random01 = 0;
+            var random02 = 0;
+            
+            for ( var x = 0; x < 20; x++ ) {
+                
+                random01 = randomNumber( 15 );
+    
+                random02 = randomNumber( 25 );
+
+                if ( map[random01][random02] == 1 ){
+                    
+                    map[random01][random02] = -1;
+
+                }
+            }
+
+        }
+
+        function displayGhost() {
+
+            document.getElementById( 'ghost01' ).style.top =  ( ghost01.y = 16 ) * 25+"px";//GHOST 01
+            document.getElementById( 'ghost01' ).style.left = ( ghost01.x = 10 ) * 25+"px";//GHOST 01
+
+            document.getElementById( 'ghost02' ).style.top =  ( ghost02.y = 16 ) * 25+"px";//GHOST 02
+            document.getElementById( 'ghost02' ).style.left = ( ghost02.x = 5 ) * 25+"px";//GHOST 02
+
+            document.getElementById( 'ghost03' ).style.top =  ( ghost03.y = 1 ) * 25+"px";//GHOST 03
+            document.getElementById( 'ghost03' ).style.left = ( ghost03.x = 15 ) * 25+"px";//GHOST 03
+
+            document.getElementById( 'ghost04' ).style.top =  ( ghost04.y = 14 ) * 25+"px";//GHOST 04
+            document.getElementById( 'ghost04' ).style.left = ( ghost04.x = 26 ) * 25+"px";//GHOST 04
+
+        }
+
+        function move() {
+
+            var count = 0;
+
+            var id = setInterval(frame, 200);
+    
+            function frame() {
+    
+                if ( count == 100000 ) {
+    
+                    clearInterval( id );
+
+                } else {
+
+                    count++;
+
+                    var direction = randomNumber(4);
+
+                    firstGhost( direction );
+                
+                    secondGhost( direction );
+
+                    thirdGhost( direction );
+
+                    fourthGhost( direction );
+
+                    clash();
+                
+                }
+            }
+        }
+
+        function firstGhost( direction ) {
+
+            if ( direction == 1) {
+                        
+                if ( map[ghost01.y][ghost01.x + 1] <= 1 ) {
+
+                    ghost01.x++;
+
+                    document.getElementById( 'ghost01' ).style.left = ghost01.x * 25+"px";//GHOST 01
+
+                }
+
+            } else if ( direction == 2) {
+
+                if ( map[ghost01.y][ghost01.x - 1] <= 1 ) {
+
+                    ghost01.x--;
+
+                    document.getElementById( 'ghost01' ).style.left = ghost01.x * 25+"px";//GHOST 01
+
+                }
+
+            } else if ( direction == 3 ) {
+
+                if ( map[ghost01.y + 1][ghost01.x] <= 1 ) {
+
+                    ghost01.y++;
+
+                    document.getElementById( 'ghost01' ).style.top = ghost01.y * 25+"px";//GHOST 01
+
+                }
+
+            } else if ( direction == 4 ) {
+
+                if ( map[ghost01.y - 1][ghost01.x] <= 1 ) {
+
+                    ghost01.y--;
+
+                    document.getElementById( 'ghost01' ).style.top = ghost01.y * 25+"px";//GHOST 01
+
+                }
+            }
+        }
+
+        function secondGhost( direction ) {
+
+            if ( direction == 2) {
+                
+                if ( map[ghost02.y][ghost02.x + 1] <= 1 ) {
+
+                    ghost02.x++;
+
+                    document.getElementById( 'ghost02' ).style.left = ghost02.x * 25+"px";
+
+                }
+
+            } else if ( direction == 3) {
+
+                if ( map[ghost02.y][ghost02.x - 1] <= 1 ) {
+
+                    ghost02.x--;
+
+                    document.getElementById( 'ghost02' ).style.left = ghost02.x * 25+"px";
+
+                }
+
+            } else if ( direction == 4 ) {
+
+                if ( map[ghost02.y + 1][ghost02.x] <= 1 ) {
+
+                    ghost02.y++;
+
+                    document.getElementById( 'ghost02' ).style.top = ghost02.y * 25+"px";
+
+                }
+
+            } else if ( direction == 1 ) {
+
+                if ( map[ghost02.y - 1][ghost02.x] <= 1 ) {
+
+                    ghost02.y--;
+
+                    document.getElementById( 'ghost02' ).style.top = ghost02.y * 25+"px";
+
+                }
+            }
+        }
+
+        function thirdGhost( direction ) {
+
+            if ( direction == 3) {
+                
+                if ( map[ghost03.y][ghost03.x + 1] <= 1 ) {
+
+                    ghost03.x++;
+
+                    document.getElementById( 'ghost03' ).style.left = ghost03.x * 25+"px";
+
+                }
+
+            } else if ( direction == 4) {
+
+                if ( map[ghost03.y][ghost03.x - 1] <= 1 ) {
+
+                    ghost03.x--;
+
+                    document.getElementById( 'ghost03' ).style.left = ghost03.x * 25+"px";
+
+                }
+
+            } else if ( direction == 1 ) {
+
+                if ( map[ghost03.y + 1][ghost03.x] <= 1 ) {
+
+                    ghost03.y++;
+
+                    document.getElementById( 'ghost03' ).style.top = ghost03.y * 25+"px";
+
+                }
+
+            } else if ( direction == 2 ) {
+
+                if ( map[ghost03.y - 1][ghost03.x] <= 1 ) {
+
+                    ghost03.y--;
+
+                    document.getElementById( 'ghost03' ).style.top = ghost03.y * 25+"px";
+
+                }
+            }
+        }
+
+        function fourthGhost( direction ) {
+
+            if ( direction == 4) {
+                
+                if ( map[ghost04.y][ghost04.x + 1] <= 1 ) {
+
+                    ghost04.x++;
+
+                    document.getElementById( 'ghost04' ).style.left = ghost04.x * 25+"px";
+
+                }
+
+            } else if ( direction == 3) {
+
+                if ( map[ghost04.y][ghost04.x - 1] <= 1 ) {
+
+                    ghost04.x--;
+
+                    document.getElementById( 'ghost04' ).style.left = ghost04.x * 25+"px";
+
+                }
+
+            } else if ( direction == 2 ) {
+
+                if ( map[ghost04.y + 1][ghost04.x] <= 1 ) {
+
+                    ghost04.y++;
+
+                    document.getElementById( 'ghost04' ).style.top = ghost04.y * 25+"px";
+
+                }
+
+            } else if ( direction == 1 ) {
+
+                if ( map[ghost04.y - 1][ghost04.x] <= 1 ) {
+
+                    ghost04.y--;
+
+                    document.getElementById( 'ghost04' ).style.top = ghost04.y * 25+"px";
+
+                }
+            }
+        }
+
+        function clash() {
+
+            if ( pacman.y == ghost01.y && pacman.x == ghost01.x) {
+
+                alert( 'Game Over' );
+
+                window.location.reload();
+            
+            } else if ( pacman.y == ghost02.y && pacman.x == ghost02.x ) {
+                
+                alert( 'Game Over' );
+
+                window.location.reload();
+
+            } else if ( pacman.y == ghost03.y && pacman.x == ghost03.x ) {
+
+                alert( 'Game Over' );
+
+                window.location.reload();
+
+            } else if ( pacman.y == ghost04.y && pacman.x == ghost04.x ) {
+
+                alert( 'Game Over' );
+
+                window.location.reload();
+
+            }
+        }
+        
+    </script>
+</body>
+</html>
